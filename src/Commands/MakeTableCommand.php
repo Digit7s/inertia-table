@@ -55,11 +55,11 @@ declare(strict_types=1);
 namespace App\Tables;
 
 use App\Models\\{$model};
-use Digit7s\InertiaTable\AbstractTable;
+use Digit7s\InertiaTable\InertiaTable;
 use Digit7s\InertiaTable\Column;
 use Illuminate\Database\Eloquent\Builder;
 
-class {$name} extends AbstractTable
+class {$name} extends InertiaTable
 {
     protected ?string \$model = {$model}::class;
 

@@ -1,5 +1,12 @@
 /vendor/
+/node_modules/
 composer.lock
+package-lock.json
+yarn.lock
 .phpunit.result.cache
+.pest_tracker.json
 .idea/
 .vscode/
+.DS_Store
+.env
+.phpunit.cache/

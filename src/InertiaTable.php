@@ -7,7 +7,7 @@ namespace Digit7s\InertiaTable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 
-abstract class AbstractTable
+abstract class InertiaTable
 {
     protected Request $request;
 

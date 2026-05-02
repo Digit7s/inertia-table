@@ -2,8 +2,8 @@
 
 namespace Digit7s\InertiaTable\Http\Controllers;
 
-use Digit7s\InertiaTable\AbstractTable;
 use Digit7s\InertiaTable\BulkAction;
+use Digit7s\InertiaTable\InertiaTable;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 
@@ -24,11 +24,11 @@ class TableActionController extends Controller
             abort(403, 'Invalid table signature.');
         }
 
-        if (! is_subclass_of($tableClass, AbstractTable::class)) {
+        if (! is_subclass_of($tableClass, InertiaTable::class)) {
             abort(403, 'Invalid table class.');
         }
 
-        /** @var AbstractTable $table */
+        /** @var InertiaTable $table */
         $table = new $tableClass($request);
 
         // Find the matching action

@@ -1,67 +1,86 @@
 # Inertia Table
 
-A backend-driven Inertia.js Datatable for Laravel and Vue 3. This package allows you to define your table structure, querying, sorting, and searching in PHP, while providing a beautiful, headless-ready Vue component to render it.
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/digit7s/inertia-table.svg?style=flat-square)](https://packagist.org/packages/digit7s/inertia-table)
+[![Total Downloads](https://img.shields.io/packagist/dt/digit7s/inertia-table.svg?style=flat-square)](https://packagist.org/packages/digit7s/inertia-table)
+[![PHP Version Compliance](https://img.shields.io/packagist/php-v/digit7s/inertia-table.svg?style=flat-square)](https://packagist.org/packages/digit7s/inertia-table)
+[![License](https://img.shields.io/packagist/l/digit7s/inertia-table.svg?style=flat-square)](LICENSE.md)
 
-## Features
+A backend-driven, premium Datatable for **Laravel**, **Inertia.js**, and **Vue 3**. Define your table structure, querying, sorting, and searching entirely in PHP, and render it with a beautiful, headless-ready Vue component.
 
-- 🚀 **Backend-driven**: Define columns, sorting, searching, and filtering in PHP.
-- 🔍 **Searching**: Integrated search across multiple columns.
-- 🎛️ **Filtering**: Backend-driven dynamic filters (supports `text`, `select`, `boolean` inputs).
-- 🔃 **Sorting**: Built-in support for column-based sorting.
-- 📄 **Pagination**: Seamless integration with Laravel pagination (can be toggled on/off).
-- 🎨 **Vue 3 + Tailwind CSS**: Modern UI built with Lucide icons and Shadcn/UI inspired components.
-- 🧩 **Slots**: Full flexibility to customize cell rendering via Vue slots.
+---
 
-## Installation
+## ✨ Features
 
-Since this is a local package, you can install it via Composer by adding a path repository to your `composer.json`:
+- 🚀 **Backend-driven**: Manage columns, sorting, searching, and filtering from your PHP classes.
+- 🔍 **Global Search**: Integrated search across multiple columns (including relationships).
+- 🎛️ **Dynamic Filters**: Support for `text`, `select`, and `boolean` filters out-of-the-box.
+- 🔃 **Smart Sorting**: Built-in column-based sorting with multi-direction support.
+- 📄 **Pagination**: Seamlessly integrates with Laravel's native paginator.
+- 🎨 **Modern UI**: Built for **Tailwind CSS** and **Shadcn/UI**, using **Lucide Icons**.
+- 🧩 **Flexible Customization**: Full control over cell rendering via Vue slots.
+- 📦 **Bulk Actions**: Built-in support for multi-row operations with a floating action bar.
+- 📁 **Grouping**: Organize records into expandable clusters based on any column.
 
-```json
-"repositories": [
-    {
-        "type": "path",
-        "url": "packages/digit7s/*"
-    }
-],
-"require-dev": {
-    "digit7s/inertia-table": "@dev"
-}
-```
+---
 
-Then run:
+## 🛠 Prerequisites
+
+This package assumes you are using:
+- **Laravel 10, 11, or 12**
+- **Inertia.js (Vue 3)**
+- **Tailwind CSS**
+- **Shadcn-vue** (The components expect `ui/table`, `ui/button`, `ui/input`, `ui/badge`, `ui/select`, and `ui/dropdown-menu` to exist in `@/components/ui`)
+- **Lucide Vue Next** icons
+
+---
+
+## 🚀 Installation
+
+You can install the package via composer:
 
 ```bash
-composer update digit7s/inertia-table
+composer require digit7s/inertia-table
 ```
 
-## Backend Usage
+### Publish Vue Components
 
-### 1. Run artisan command
+Since the table components are built with Vue and Tailwind, you need to publish them to your project's `resources/js` directory:
+
 ```bash
-# Basic usage (Uses App\Models\User and creates UsersTable)
-php artisan make:inertia-table User
-
-# Explicit name and model
-php artisan make:inertia-table PostTable Post
-
-# If you skip 'Table' suffix, it's auto-added
-php artisan make:inertia-table Post # creates app/Tables/PostTable.php
+php artisan vendor:publish --tag="inertia-table-components"
 ```
 
-### 2. Create a Table Class
+This will place the components in `resources/js/components/inertia-table/`.
 
-Extend `Digit7s\InertiaTable\AbstractTable` and implement the `query` and `columns` methods.
+---
+
+## 📖 Basic Usage
+
+### 1. Generate a Table Class
+
+Use the artisan command to create a new table class:
+
+```bash
+php artisan make:inertia-table UsersTable User
+```
+
+This will create `app/Tables/UsersTable.php`.
+
+### 2. Configure the Table
+
+Define your query and columns in the generated class:
 
 ```php
 namespace App\Tables;
 
 use App\Models\User;
-use Digit7s\InertiaTable\AbstractTable;
+use Digit7s\InertiaTable\InertiaTable;
 use Digit7s\InertiaTable\Column;
-use Digit7s\InertiaTable\Filter;
+use Digit7s\InertiaTable\Columns\TextColumn;
+use Digit7s\InertiaTable\Columns\DateColumn;
 use Illuminate\Database\Eloquent\Builder;
 
-class UsersTable extends AbstractTable
+class UsersTable extends InertiaTable
 {
     protected ?string $model = User::class;
 
@@ -74,35 +93,16 @@ class UsersTable extends AbstractTable
     {
         return [
             Column::make('id', 'ID')->sortable(),
-            Column::make('name')->searchable()->sortable(),
-            Column::make('email')->searchable(),
-            Column::make('roles.name', 'Role')->searchable(), // Nested relation dot-notation
-            Column::make('created_at', 'Joined')->sortable(),
-        ];
-    }
-
-    public function filters(): array
-    {
-        return [
-            Filter::make('role', 'User Role')
-                ->type('select')
-                ->options(['admin' => 'Admin', 'user' => 'User'])
-                ->query(function (Builder $query, $value) {
-                    // Custom relationship filtering
-                    $query->whereHas('roles', function (Builder $query) use ($value) {
-                        $query->where('name', $value);
-                    });
-                }),
-            Filter::make('is_active', 'Active Only')
-                ->type('boolean'),
+            TextColumn::make('name')->searchable()->sortable(),
+            TextColumn::make('email')->searchable(),
+            TextColumn::make('roles.name', 'Role')->searchable(),
+            DateColumn::make('created_at', 'Joined')->sortable(),
         ];
     }
 }
 ```
 
-### 3. Use in Controller
-
-Instantiate your table class and use the `toInertia()` method to pass data to your Inertia page.
+### 3. Return from Controller
 
 ```php
 use App\Tables\UsersTable;
@@ -116,15 +116,11 @@ public function index()
 }
 ```
 
-## Frontend Usage
-
-### 1. Basic Implementation
-
-Import the `InertiaTable` component and pass the `tableData` prop.
+### 4. Render in Vue
 
 ```vue
 <script setup lang="ts">
-import InertiaTable from '@/components/InertiaTable.vue';
+import InertiaTable from '@/components/inertia-table/InertiaTable.vue';
 
 defineProps<{
     users: any;
@@ -136,60 +132,55 @@ defineProps<{
 </template>
 ```
 
-### 2. Customizing Cells
+---
 
-Use slots to customize specific columns. The slot name follows the pattern `cell-{column_key}`.
+## 💎 Advanced Features
 
-```vue
-<template>
-    <InertiaTable :tableData="users">
-        <!-- Customize the 'name' column -->
-        <template #cell-name="{ item }">
-            <div class="font-bold">{{ item.name }}</div>
-            <div class="text-xs text-muted-foreground">{{ item.email }}</div>
-        </template>
+### Column Types
 
-        <!-- Add an actions column -->
-        <template #cell-actions="{ item }">
-            <button @click="edit(item)">Edit</button>
-        </template>
-    </InertiaTable>
-</template>
+The package provides specialized column types for better data presentation:
+
+- **`TextColumn`**: Default text representation.
+- **`NumericColumn`**: Right-aligned for numbers and currency.
+- **`BadgeColumn`**: Renders colorful badges based on values.
+- **`BooleanColumn`**: Renders Check/X icons for boolean values.
+- **`DateColumn` / `DateTimeColumn`**: Formats dates on the client side.
+- **`ImageColumn`**: Renders circular or rounded images from URLs.
+- **`TagsColumn`**: Renders an array of values as a cluster of badges.
+
+```php
+use Digit7s\InertiaTable\Columns\TagsColumn;
+
+TagsColumn::make('tags')
+    ->labelKey('name') // If tags are objects
+    ->badgeClass('bg-blue-500 text-white');
 ```
 
-## Row Actions & Links
+### Row Actions & Links
 
-The package natively supports adding interactive clicking behaviors and `shadcn-vue` dropdown menus to your rows!
-
-### Clicking entire rows (`rowLink`)
-Add `rowLink()` to your `query()` method. The table will automatically handle stopping event propagation on sub-elements, transforming your rows precisely to become clickable, receiving Shadcn `cursor-pointer hover:bg-muted/50` visual queues out-of-the-box.
+#### Clickable Rows
+Make the entire row a link:
 ```php
 public function query(): Builder
 {
-    $this->rowLink(fn (User $user) => route('users.edit', $user->id));
-
+    $this->rowLink(fn (User $user) => route('users.show', $user->id));
     return User::query();
 }
 ```
 
-### Row Actions Dropdown
-You can append an automatic Actions dropdown to the right side of every row.
-
-1. Inject the placeholder **ActionColumn** structurally into your table `columns()` array:
+#### Row Actions Dropdown
+Add an actions dropdown to the right side of every row:
 ```php
+use Digit7s\InertiaTable\Action;
 use Digit7s\InertiaTable\Columns\ActionColumn;
 
 public function columns(): array
 {
     return [
-        Column::make('name'),
+        TextColumn::make('name'),
         ActionColumn::new(),
     ];
 }
-```
-2. Define the actual dropdown items in the `actions()` method mapping against Lucide strings using the core `Action` builder:
-```php
-use Digit7s\InertiaTable\Action;
 
 public function actions(): array
 {
@@ -200,164 +191,71 @@ public function actions(): array
             
         Action::make('delete', 'Delete')
             ->icon('Trash')
+            ->method('delete')
+            ->requiresConfirmation()
             ->url(fn (User $user) => route('users.destroy', $user->id)),
-    ];
     ];
 }
 ```
 
 ### Bulk Actions
-You can define actions that execute against multiple sequentially selected rows simultaneously. When you define `bulkActions()`, the datatable automatically injects a frontend Checkbox column onto the far left of the table and spawns a floating Action Bar at the base of the screen when rows are actively selected.
 
-1. Implement the `bulkActions()` method on your Table class using the `BulkAction` builder:
+Enable multi-row operations with a floating action bar:
+
 ```php
 use Digit7s\InertiaTable\BulkAction;
 
 public function bulkActions(): array
 {
     return [
-        BulkAction::make('export', 'Export Users')
-            ->icon('Download')
-            ->method('post')
-            ->url(route('users.export')),
-            
         BulkAction::make('delete', 'Delete Selected')
             ->icon('Trash')
-            ->method('delete')
             ->requiresConfirmation()
-            ->confirmTitle('Delete Selected Users?')
-            ->confirmDescription('Are you absolutely sure you want to delete these users?')
-            ->url(route('users.bulk-delete')),
+            ->action(function (array $ids) {
+                User::whereIn('id', $ids)->delete();
+            }),
     ];
 }
 ```
-**Important:** Your defined `url` endpoint will receive a `$request->input('ids')` parameter array holding the targeted row `id`s triggered by the frontend.
 
-## Grouping Records
+### Grouping
 
-The datatable supports organizing records into clusters based on specific columns (e.g. Grouping Permissions by Resource or Employees by Department).
+Organize records into clusters:
 
-1. **Enable grouping in your Table class:**
 ```php
 Column::make('status')->groupable();
 
-// Or group by a specific database column (useful for relations)
-Column::make('department.name')->groupable('department_id');
+// Or set a default group
+protected ?string $defaultGroup = 'status';
 ```
 
-2. **Custom Group Values:** You can provide a closure to define how the group labels are generated. This is useful for extracting categories from strings.
-```php
-TextColumn::make('name')
-    ->groupable()
-    ->groupUsing(fn ($row) => explode(' ', $row->name)[1] ?? 'Other');
+---
+
+## 🎨 Customizing Cells
+
+You can override any cell's rendering using Vue slots:
+
+```vue
+<template>
+    <InertiaTable :tableData="users">
+        <!-- Customize specific cell -->
+        <template #cell-name="{ item }">
+            <div class="flex flex-col">
+                <span class="font-bold">{{ item.name }}</span>
+                <span class="text-xs text-gray-500">{{ item.email }}</span>
+            </div>
+        </template>
+
+        <!-- Customize action buttons manually -->
+        <template #cell-actions="{ item }">
+            <Button variant="outline" size="sm" @click="edit(item)">Edit</Button>
+        </template>
+    </InertiaTable>
+</template>
 ```
 
-3. **Default Grouping:** You can set a default group that is applied automatically when the table loads.
-```php
-protected ?string $defaultGroup = 'name';
-protected string $defaultGroupDir = 'asc';
-```
+---
 
-4. **Backend Querying:** When a group is active, the `AbstractTable` automatically injects an `orderBy` clause for that group column *before* any other sorting. This ensures records are correctly clustered in the database result.
-
-## Column Types
-
-The package provides several specific column types tailored for different data representations. They all extend the base `Column` class, meaning you can chain standard methods like `sortable()` and `searchable()`.
-
-### TextColumn
-The default column used for string values.
-```php
-use Digit7s\InertiaTable\Columns\TextColumn;
-
-TextColumn::make('name', 'Full Name')->sortable();
-```
-
-### NumericColumn
-Automatically right-aligns data. Perfect for money, quantities, or IDs.
-```php
-use Digit7s\InertiaTable\Columns\NumericColumn;
-
-NumericColumn::make('amount')->sortable();
-```
-
-### BadgeColumn
-Renders shadcn-vue badges. You can map explicit cell values to badge variants (`default`, `secondary`, `destructive`, `outline`, etc.).
-```php
-use Digit7s\InertiaTable\Columns\BadgeColumn;
-
-BadgeColumn::make('status')
-    ->variant([
-        'active' => 'default',
-        'pending' => 'secondary',
-        'banned' => 'destructive'
-    ]);
-```
-
-### BooleanColumn
-Displays Lucide `Check` and `X` icons matching true/false. Optionally attach display labels.
-```php
-use Digit7s\InertiaTable\Columns\BooleanColumn;
-
-BooleanColumn::make('is_admin')
-    ->trueLabel('Admin')
-    ->falseLabel('User');
-```
-
-### DateColumn & DateTimeColumn
-Parses timestamps locally onto the client.
-```php
-use Digit7s\InertiaTable\Columns\DateColumn;
-use Digit7s\InertiaTable\Columns\DateTimeColumn;
-
-DateColumn::make('created_at', 'Joined');
-DateTimeColumn::make('updated_at', 'Last Modified');
-```
-
-### ImageColumn
-Displays an image from a URL field.
-```php
-use Digit7s\InertiaTable\Columns\ImageColumn;
-
-ImageColumn::make('avatar_url')->circular();
-```
-
-### ActionColumn
-A non-sortable, right-aligned placeholder wrapper specifically for injecting the `#actions` slot on the row.
-```php
-use Digit7s\InertiaTable\Columns\ActionColumn;
-
-ActionColumn::new('Manage Options');
-```
-*Tip: On your Vue template, you can customize actions easily over this column by dropping your content inside `<template #actions="{ item }">` instead of matching the full cell-key.*
-
-## Column Configuration
-
-The `Column` interface provides several base methods:
-
-- `make(string $key, ?string $label = null)`: Create a new column. Supports dot notation for simple relation column resolutions (`e.g. roles.name`).
-- `sortable(bool $sortable = true)`: Enable or disable sorting for this column.
-- `searchable(bool|string|array $searchable = true)`: Include this column in the global search. **Supports relationships automatically** via dot notation.
-- `visible(bool $visible = true)`: Determines if this column is shown by default when the table explicitly loads.
-- `toggleable(bool $toggleable = true)`: Enables the user to actively turn the visibility of this column on or off using the View Settings dropdown.
-- `component(string $component)`: (Optional) Specify a custom component for this column.
-
-## Filter Configuration
-
-The `Filter` class allows you to define constraints available to the user. The InertiaTable component dynamically renders the corresponding `shadcn-vue` input based on the provided type.
-
-- `Filter::make(string $key, ?string $label = null)`: Create a new filter.
-- `type(string $type)`: Set the filter type (`text`, `select`, or `boolean`). Defaults to `text`.
-- `options(array $options)`: Used when the type is `select` to provide a key-value array of options.
-- `query(callable $callback)`: Custom closure to execute specific query scopes (perfect for Relationship filters or complex SQL states).
-
-## Pagination Configuration
-
-By default, the table uses Laravel's standard pagination.
-
-- `paginated(bool $paginated = true)`: Enable or disable pagination. If set to `false`, the table will load all records and hide pagination controls in the UI.
-- `perPageOptions(array $options)`: Set the available rows-per-page options.
-- `defaultPerPage(int $perPage)`: Set the default rows-per-page value.
-
-## License
+## 📄 License
 
 The MIT License (MIT). Please see [License File](LICENSE.md) for more information.

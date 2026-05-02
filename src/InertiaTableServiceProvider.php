@@ -15,6 +15,10 @@ class InertiaTableServiceProvider extends ServiceProvider
             $this->commands([
                 MakeTableCommand::class,
             ]);
+
+            $this->publishes([
+                __DIR__.'/../resources/js/components' => resource_path('js/components/inertia-table'),
+            ], 'inertia-table-components');
         }
 
         Route::post('/_inertia-table/bulk-action', [TableActionController::class, 'handleBulkAction'])
