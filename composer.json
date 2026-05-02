@@ -2,10 +2,16 @@
     "name": "digit7s/inertia-table",
     "description": "A backend-driven Inertia Datatable for Laravel and Vue 3",
     "license": "MIT",
+    "homepage": "https://github.com/Digit7s/inertia-table",
+    "keywords": [
+        "laravel",
+        "inertia",
+        "table"
+    ],
     "authors": [
         {
-            "name": "Digit7s",
-            "email": "info@digit7s.com"
+            "name": "Myo Min Oo",
+            "email": "myomin.oo@digit7s.com"
         }
     ],
     "require": {
