@@ -1,0 +1,29 @@
+<?php
+
+namespace Digit7s\InertiaTable;
+
+use Digit7s\InertiaTable\Commands\MakeTableCommand;
+use Digit7s\InertiaTable\Http\Controllers\TableActionController;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\ServiceProvider;
+
+class InertiaTableServiceProvider extends ServiceProvider
+{
+    public function boot(): void
+    {
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                MakeTableCommand::class,
+            ]);
+        }
+
+        Route::post('/_inertia-table/bulk-action', [TableActionController::class, 'handleBulkAction'])
+            ->middleware(['web'])
+            ->name('inertia-table.bulk-action');
+    }
+
+    public function register(): void
+    {
+        //
+    }
+}
