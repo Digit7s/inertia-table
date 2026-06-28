@@ -1,12 +1,34 @@
 /vendor/
 /node_modules/
+
+# Local dependency lock files for package/library development
 composer.lock
 package-lock.json
 yarn.lock
+pnpm-lock.yaml
+
+# Test/cache files
 .phpunit.result.cache
+.phpunit.cache/
 .pest_tracker.json
+
+# IDE/editor
 .idea/
 .vscode/
+
+# OS files
 .DS_Store
+Thumbs.db
+
+# Environment
 .env
-.phpunit.cache/
+.env.*
+!.env.example
+
+# Example App generated files
+/example/vendor/
+/example/node_modules/
+/example/.env
+/example/.env.*
+!/example/.env.example
+/example/storage/logs/*.log

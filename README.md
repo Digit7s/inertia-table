@@ -5,38 +5,89 @@
 [![PHP Version Compliance](https://img.shields.io/packagist/php-v/digit7s/inertia-table.svg?style=flat-square)](https://packagist.org/packages/digit7s/inertia-table)
 [![License](https://img.shields.io/packagist/l/digit7s/inertia-table.svg?style=flat-square)](LICENSE.md)
 
-A backend-driven, premium Datatable for **Laravel**, **Inertia.js**, and **Vue 3**. Define your table structure, querying, sorting, and searching entirely in PHP, and render it with a beautiful, headless-ready Vue component.
+A backend-driven datatable package for **Laravel**, **Inertia.js**, and **Vue 3**.
+
+Define your table structure, query, searching, sorting, filtering, row actions, bulk actions, and grouping in PHP, then render the result with published Vue 3 components in your Laravel/Inertia application.
 
 ---
 
 ## ✨ Features
 
-- 🚀 **Backend-driven**: Manage columns, sorting, searching, and filtering from your PHP classes.
-- 🔍 **Global Search**: Integrated search across multiple columns (including relationships).
-- 🎛️ **Dynamic Filters**: Support for `text`, `select`, and `boolean` filters out-of-the-box.
-- 🔃 **Smart Sorting**: Built-in column-based sorting with multi-direction support.
-- 📄 **Pagination**: Seamlessly integrates with Laravel's native paginator.
-- 🎨 **Modern UI**: Built for **Tailwind CSS** and **Shadcn/UI**, using **Lucide Icons**.
-- 🧩 **Flexible Customization**: Full control over cell rendering via Vue slots.
-- 📦 **Bulk Actions**: Built-in support for multi-row operations with a floating action bar.
-- 📁 **Grouping**: Organize records into expandable clusters based on any column.
+* 🚀 **Backend-driven tables**: Manage columns, sorting, searching, filtering, actions, and pagination from PHP.
+* 🔍 **Global search**: Search across multiple columns, including relationship fields.
+* 🎛️ **Dynamic filters**: Supports `text`, `select`, and `boolean` filters.
+* 🔃 **Smart sorting**: Built-in column-based sorting with direction handling.
+* 📄 **Pagination**: Integrates with Laravel's native paginator.
+* 🎨 **Modern Vue UI**: Published Vue 3 components built for Tailwind CSS and shadcn-vue.
+* 🧩 **Custom cell rendering**: Override cell rendering using Vue slots.
+* 📦 **Bulk actions**: Built-in multi-row actions with confirmation support.
+* 📁 **Grouping**: Organize rows into expandable groups by column.
+* 🧱 **Publishable frontend components**: Publish and customize the Vue table components inside your own app.
 
 ---
 
-## 🛠 Prerequisites
+## ✅ Version Support
 
-This package assumes you are using:
-- **Laravel 10, 11, or 12**
-- **Inertia.js (Vue 3)**
-- **Tailwind CSS**
-- **Shadcn-vue** (The components expect `ui/table`, `ui/button`, `ui/input`, `ui/badge`, `ui/select`, and `ui/dropdown-menu` to exist in `@/components/ui`)
-- **Lucide Vue Next** icons
+| Package Version | PHP    | Laravel                | Inertia Laravel | Vue.js | Status           |
+| --------------- | ------ | ---------------------- | --------------- | ------ | ---------------- |
+| `1.x`           | `^8.2` | `10.x`, `11.x`, `12.x` | `^1.0`, `^2.0`  | `3.x`  | Active           |
+| `2.x`           | TBD    | TBD                    | TBD             | TBD    | Planned / Future |
+
+Version support is based on the Composer constraints and tested compatibility for each package release.
+
+Laravel 13 support is **not claimed** until `composer.json`, tests, and CI are updated for Laravel 13 compatibility.
+
+---
+
+## 🛠 Requirements
+
+Please refer to the [Version Support](#-version-support) table for PHP, Laravel, Inertia Laravel, and Vue.js compatibility.
+
+This package has two parts:
+
+1. A Laravel/PHP backend table builder.
+2. Publishable Vue 3 frontend components for your Laravel/Inertia app.
+
+### Backend Requirements
+
+* PHP `8.2+`
+* Laravel `10.x`, `11.x`, or `12.x`
+* Inertia Laravel `1.x` or `2.x`
+
+### Frontend Requirements
+
+The published Vue components expect your Laravel/Inertia app to already have the following frontend stack installed and configured:
+
+* Vue 3
+* `@inertiajs/vue3`
+* Tailwind CSS
+* shadcn-vue
+* `lucide-vue-next`
+
+### Required shadcn-vue Components
+
+The published components import shadcn-vue components from your app's `@/components/ui` directory.
+
+Make sure these components exist in your consuming Laravel app:
+
+* `badge`
+* `button`
+* `checkbox`
+* `dialog`
+* `dropdown-menu`
+* `input`
+* `select`
+* `table`
+
+Depending on the features you use, additional shadcn-vue components may be required in future versions.
+
+> **Note:** shadcn-vue components are generated into your application. They are not normal npm package imports. This package expects those components to exist in the consuming Laravel app after publishing the table components.
 
 ---
 
 ## 🚀 Installation
 
-You can install the package via composer:
+Install the package via Composer:
 
 ```bash
 composer require digit7s/inertia-table
@@ -44,13 +95,19 @@ composer require digit7s/inertia-table
 
 ### Publish Vue Components
 
-Since the table components are built with Vue and Tailwind, you need to publish them to your project's `resources/js` directory:
+Since the table UI is built with Vue 3 and Tailwind CSS, publish the components into your Laravel app:
 
 ```bash
 php artisan vendor:publish --tag="inertia-table-components"
 ```
 
-This will place the components in `resources/js/components/inertia-table/`.
+This will publish the components to:
+
+```txt
+resources/js/components/inertia-table/
+```
+
+After publishing, you may customize the Vue components to match your application's design system.
 
 ---
 
@@ -58,26 +115,32 @@ This will place the components in `resources/js/components/inertia-table/`.
 
 ### 1. Generate a Table Class
 
-Use the artisan command to create a new table class:
+Use the Artisan command to create a new table class:
 
 ```bash
 php artisan make:inertia-table UsersTable User
 ```
 
-This will create `app/Tables/UsersTable.php`.
+This will create:
+
+```txt
+app/Tables/UsersTable.php
+```
+
+---
 
 ### 2. Configure the Table
 
-Define your query and columns in the generated class:
+Define your query and columns in the generated table class:
 
 ```php
 namespace App\Tables;
 
 use App\Models\User;
-use Digit7s\InertiaTable\InertiaTable;
 use Digit7s\InertiaTable\Column;
-use Digit7s\InertiaTable\Columns\TextColumn;
 use Digit7s\InertiaTable\Columns\DateColumn;
+use Digit7s\InertiaTable\Columns\TextColumn;
+use Digit7s\InertiaTable\InertiaTable;
 use Illuminate\Database\Eloquent\Builder;
 
 class UsersTable extends InertiaTable
@@ -102,7 +165,9 @@ class UsersTable extends InertiaTable
 }
 ```
 
-### 3. Return from Controller
+---
+
+### 3. Return the Table from a Controller
 
 ```php
 use App\Tables\UsersTable;
@@ -116,21 +181,25 @@ public function index()
 }
 ```
 
-### 4. Render in Vue
+---
+
+### 4. Render the Table in Vue
 
 ```vue
 <script setup lang="ts">
 import InertiaTable from '@/components/inertia-table/InertiaTable.vue';
 
 defineProps<{
-    users: any;
+    users: Record<string, unknown>;
 }>();
 </script>
 
 <template>
-    <InertiaTable :tableData="users" />
+    <InertiaTable :table-data="users" />
 </template>
 ```
+
+> If your component currently expects `tableData` instead of `table-data`, both are the same Vue prop in templates because Vue supports kebab-case usage for camelCase props.
 
 ---
 
@@ -138,38 +207,47 @@ defineProps<{
 
 ### Column Types
 
-The package provides specialized column types for better data presentation:
+The package provides specialized column types for common table data:
 
-- **`TextColumn`**: Default text representation.
-- **`NumericColumn`**: Right-aligned for numbers and currency.
-- **`BadgeColumn`**: Renders colorful badges based on values.
-- **`BooleanColumn`**: Renders Check/X icons for boolean values.
-- **`DateColumn` / `DateTimeColumn`**: Formats dates on the client side.
-- **`ImageColumn`**: Renders circular or rounded images from URLs.
-- **`TagsColumn`**: Renders an array of values as a cluster of badges.
+* **`TextColumn`**: Default text representation.
+* **`NumericColumn`**: Right-aligned number/currency display.
+* **`BadgeColumn`**: Displays values as badges.
+* **`BooleanColumn`**: Displays boolean values with visual indicators.
+* **`DateColumn` / `DateTimeColumn`**: Formats date and datetime values.
+* **`ImageColumn`**: Displays image/avatar-style values.
+* **`TagsColumn`**: Displays arrays as badge groups.
+
+Example:
 
 ```php
 use Digit7s\InertiaTable\Columns\TagsColumn;
 
 TagsColumn::make('tags')
-    ->labelKey('name') // If tags are objects
+    ->labelKey('name')
     ->badgeClass('bg-blue-500 text-white');
 ```
 
-### Row Actions & Links
+---
 
-#### Clickable Rows
-Make the entire row a link:
+## 🔗 Row Actions & Links
+
+### Clickable Rows
+
+Make the entire row clickable:
+
 ```php
 public function query(): Builder
 {
     $this->rowLink(fn (User $user) => route('users.show', $user->id));
+
     return User::query();
 }
 ```
 
-#### Row Actions Dropdown
-Add an actions dropdown to the right side of every row:
+### Row Actions Dropdown
+
+Add row-level actions to your table:
+
 ```php
 use Digit7s\InertiaTable\Action;
 use Digit7s\InertiaTable\Columns\ActionColumn;
@@ -188,7 +266,7 @@ public function actions(): array
         Action::make('edit', 'Edit')
             ->icon('Pencil')
             ->url(fn (User $user) => route('users.edit', $user->id)),
-            
+
         Action::make('delete', 'Delete')
             ->icon('Trash')
             ->method('delete')
@@ -198,9 +276,11 @@ public function actions(): array
 }
 ```
 
-### Bulk Actions
+---
 
-Enable multi-row operations with a floating action bar:
+## 📦 Bulk Actions
+
+Enable multi-row operations with a floating bulk action bar:
 
 ```php
 use Digit7s\InertiaTable\BulkAction;
@@ -218,14 +298,41 @@ public function bulkActions(): array
 }
 ```
 
-### Grouping
+## CSV Export
 
-Organize records into clusters:
+CSV export is disabled by default.
+
+Enable it in your table class:
+
+```php
+use Digit7s\InertiaTable\Exports\CsvExport;
+
+public function exports(): array
+{
+    return [
+        CsvExport::make('products.csv')
+            ->label('Export CSV')
+            ->onlyVisibleColumns()
+            ->withCurrentFilters()
+            ->withCurrentSort(),
+    ];
+}
+```
+
+The package uses Laravel `streamDownload()` and PHP `fputcsv()`.
+No external export dependency is required.
+
+## 📁 Grouping
+
+Organize records into expandable groups:
 
 ```php
 Column::make('status')->groupable();
+```
 
-// Or set a default group
+You may also define a default group:
+
+```php
 protected ?string $defaultGroup = 'status';
 ```
 
@@ -233,12 +340,11 @@ protected ?string $defaultGroup = 'status';
 
 ## 🎨 Customizing Cells
 
-You can override any cell's rendering using Vue slots:
+You can override any cell's rendering using Vue slots.
 
 ```vue
 <template>
-    <InertiaTable :tableData="users">
-        <!-- Customize specific cell -->
+    <InertiaTable :table-data="users">
         <template #cell-name="{ item }">
             <div class="flex flex-col">
                 <span class="font-bold">{{ item.name }}</span>
@@ -246,13 +352,117 @@ You can override any cell's rendering using Vue slots:
             </div>
         </template>
 
-        <!-- Customize action buttons manually -->
         <template #cell-actions="{ item }">
-            <Button variant="outline" size="sm" @click="edit(item)">Edit</Button>
+            <Button variant="outline" size="sm" @click="edit(item)">
+                Edit
+            </Button>
         </template>
     </InertiaTable>
 </template>
 ```
+
+Slot names follow this format:
+
+```txt
+cell-{column-key}
+```
+
+For example:
+
+| Column Key | Slot Name      |
+| ---------- | -------------- |
+| `name`     | `cell-name`    |
+| `email`    | `cell-email`   |
+| `status`   | `cell-status`  |
+| `actions`  | `cell-actions` |
+
+---
+
+## 🧩 Frontend Customization
+
+After publishing the components, you can customize them directly in your app:
+
+```txt
+resources/js/components/inertia-table/
+```
+
+Common customization points:
+
+* Table layout
+* Cell styling
+* Empty state
+* Pagination UI
+* Filter UI
+* Row action dropdown
+* Bulk action bar
+* Confirmation dialog
+* Column visibility menu
+* Responsive behavior
+
+Because the components are published into your application, you are free to adapt them to your design system.
+
+---
+
+## 📚 Documentation
+
+For detailed information on each feature, see the documentation inside the `docs/` folder:
+
+* [Documentation Index](docs/index.md)
+* [Changelog](CHANGELOG.md)
+* [Installation](docs/installation.md)
+* [Usage](docs/usage.md)
+* [CSV Export](docs/export.md)
+* [Accessibility](docs/accessibility.md)
+* [Example App](docs/example.md)
+* [Troubleshooting](docs/troubleshooting.md)
+
+---
+
+## 🧪 Testing
+
+If you are contributing to the package, run the test suite:
+
+```bash
+composer test
+```
+
+If no test script is configured, run Pest directly:
+
+```bash
+vendor/bin/pest
+```
+
+You may also run Laravel Pint if it is installed:
+
+```bash
+vendor/bin/pint
+```
+
+---
+
+## 🧭 Roadmap
+
+See the [Roadmap](docs/roadmap.md) for planned and potential future improvements.
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome.
+
+Before submitting a pull request:
+
+1. Keep changes focused.
+2. Follow the existing code style.
+3. Add or update tests when possible.
+4. Update documentation when behavior changes.
+5. Confirm the package still works in a Laravel/Inertia/Vue app.
+
+---
+
+## 🔒 Security
+
+If you discover a security vulnerability, please report it privately instead of opening a public issue.
 
 ---
 

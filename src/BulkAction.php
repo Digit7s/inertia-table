@@ -6,6 +6,8 @@ class BulkAction
 {
     protected ?string $icon = null;
 
+    protected ?string $variant = null;
+
     protected ?\Closure $actionCallback = null;
 
     protected bool $requiresConfirmation = false;
@@ -34,6 +36,13 @@ class BulkAction
     public function icon(string $icon): static
     {
         $this->icon = $icon;
+
+        return $this;
+    }
+
+    public function variant(string $variant): static
+    {
+        $this->variant = $variant;
 
         return $this;
     }
@@ -74,6 +83,7 @@ class BulkAction
             'key' => $this->key,
             'label' => $this->label,
             'icon' => $this->icon,
+            'variant' => $this->variant,
             'requires_confirmation' => $this->requiresConfirmation,
             'confirm_title' => $this->confirmTitle,
             'confirm_description' => $this->confirmDescription,

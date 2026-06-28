@@ -4,6 +4,7 @@ namespace Digit7s\InertiaTable;
 
 use Digit7s\InertiaTable\Commands\MakeTableCommand;
 use Digit7s\InertiaTable\Http\Controllers\TableActionController;
+use Digit7s\InertiaTable\Http\Controllers\TableExportController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 
@@ -24,6 +25,10 @@ class InertiaTableServiceProvider extends ServiceProvider
         Route::post('/_inertia-table/bulk-action', [TableActionController::class, 'handleBulkAction'])
             ->middleware(['web'])
             ->name('inertia-table.bulk-action');
+
+        Route::get('/_inertia-table/export', [TableExportController::class, 'handleExport'])
+            ->middleware(['web'])
+            ->name('inertia-table.export');
     }
 
     public function register(): void

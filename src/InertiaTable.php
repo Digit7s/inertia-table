@@ -93,6 +93,14 @@ abstract class InertiaTable
         return [];
     }
 
+    /**
+     * @return \Digit7s\InertiaTable\Exports\CsvExport[]
+     */
+    public function exports(): array
+    {
+        return [];
+    }
+
     public function rowLink(\Closure $callback): static
     {
         $this->rowLinkCallback = $callback;
@@ -135,6 +143,16 @@ abstract class InertiaTable
                 'total' => $paginator->total(),
                 'table_class' => encrypt(static::class),
             ];
+            
+            $exports = $this->exports();
+            if (count($exports) > 0) {
+                $meta['exports'] = collect($exports)->map(function ($export) {
+                    $array = $export->toArray();
+                    $array['url'] = route('inertia-table.export');
+                    return $array;
+                })->toArray();
+            }
+
             $links = $paginator->linkCollection()->toArray();
         } else {
             $collection = $query->get();
@@ -148,6 +166,16 @@ abstract class InertiaTable
                 'total' => $collection->count(),
                 'table_class' => encrypt(static::class),
             ];
+            
+            $exports = $this->exports();
+            if (count($exports) > 0) {
+                $meta['exports'] = collect($exports)->map(function ($export) {
+                    $array = $export->toArray();
+                    $array['url'] = route('inertia-table.export');
+                    return $array;
+                })->toArray();
+            }
+
             $links = [];
             $perPage = $collection->count();
         }

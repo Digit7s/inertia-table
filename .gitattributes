@@ -1,0 +1,11 @@
+/example export-ignore
+/.github export-ignore
+/.idea export-ignore
+/.vscode export-ignore
+/tests export-ignore
+/.phpunit.cache export-ignore
+/.phpunit.result.cache export-ignore
+/.pest_tracker.json export-ignore
+/package-lock.json export-ignore
+/yarn.lock export-ignore
+/pnpm-lock.yaml export-ignore

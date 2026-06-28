@@ -24,6 +24,8 @@ class Column
 
     protected ?\Closure $groupValueCallback = null;
 
+    protected bool|\Closure $exportable = true;
+
     public function __construct(
         public string $key,
         public string $label
@@ -109,6 +111,13 @@ class Column
         return $this;
     }
 
+    public function exportable(bool|\Closure $exportable = true): static
+    {
+        $this->exportable = $exportable;
+
+        return $this;
+    }
+
     public function isSortable(): bool
     {
         return (bool) $this->evaluate($this->sortable);
@@ -122,6 +131,11 @@ class Column
     public function isGroupable(): bool
     {
         return (bool) $this->evaluate($this->groupable);
+    }
+
+    public function isExportable(): bool
+    {
+        return (bool) $this->evaluate($this->exportable);
     }
 
     public function getGroupColumn(): string
