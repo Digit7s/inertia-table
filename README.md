@@ -28,14 +28,12 @@ Define your table structure, query, searching, sorting, filtering, row actions, 
 
 ## ✅ Version Support
 
-| Package Version | PHP    | Laravel                | Inertia Laravel | Vue.js | Status           |
-| --------------- | ------ | ---------------------- | --------------- | ------ | ---------------- |
-| `1.x`           | `^8.2` | `10.x`, `11.x`, `12.x` | `^1.0`, `^2.0`  | `3.x`  | Active           |
-| `2.x`           | TBD    | TBD                    | TBD             | TBD    | Planned / Future |
+| Package Version | PHP    | Laravel                        | Inertia Laravel | Vue.js | Tailwind CSS | shadcn-vue | Status |
+| --------------- | ------ | ------------------------------ | --------------- | ------ | ------------ | ---------- | ------ |
+| `1.x`           | `^8.2` | `10.x`, `11.x`, `12.x`, `13.x` | `^1.0`, `^2.0`, `^3.0` | `3.x`  | `3.x`, `4.x` | Compatible | Active |
+
 
 Version support is based on the Composer constraints and tested compatibility for each package release.
-
-Laravel 13 support is **not claimed** until `composer.json`, tests, and CI are updated for Laravel 13 compatibility.
 
 ---
 
