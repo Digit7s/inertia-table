@@ -2,23 +2,43 @@ export interface Column {
     key: string;
     label: string;
     type: string;
-    meta?: Record<string, unknown>;
+    meta: Record<string, unknown>;
     sortable: boolean;
     searchable: boolean;
     visible: boolean;
     toggleable: boolean;
     toggledHiddenByDefault: boolean;
-    groupable?: boolean | string;
-    component?: string;
+    groupable: boolean | string;
+    component: string | null;
 }
 
 export interface BulkAction {
     key: string;
     label: string;
     icon?: string;
+    variant?: string | null;
     requires_confirmation?: boolean;
     confirm_title?: string;
     confirm_description?: string;
+}
+
+export interface RowAction {
+    key: string;
+    label: string;
+    url: string | null;
+    icon: string | null;
+    method: string;
+    requires_confirmation: boolean;
+    confirm_title: string | null;
+    confirm_description: string | null;
+}
+
+export interface TableRow extends Record<string, unknown> {
+    id?: string | number;
+    _actions?: RowAction[];
+    _row_link?: string | null;
+    _column_values?: Record<string, unknown>;
+    _group_value?: unknown;
 }
 
 export interface ExportAction {
@@ -58,8 +78,8 @@ export interface TableData {
         search: string;
         sort: string;
         dir: 'asc' | 'desc';
-        group?: string;
-        group_dir?: 'asc' | 'desc';
+        group?: string | null;
+        group_dir?: 'asc' | 'desc' | null;
         filter: Record<string, unknown>;
         perPage?: number;
     };

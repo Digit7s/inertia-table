@@ -6,11 +6,14 @@
         "build": "vite build",
         "build:ssr": "vite build && vite build --ssr",
         "dev": "vite",
-        "format": "prettier --write resources/",
-        "format:check": "prettier --check resources/",
-        "lint": "eslint . --fix",
-        "lint:check": "eslint .",
-        "types:check": "vue-tsc --noEmit"
+        "format": "prettier --config .prettierrc --write resources/ ../resources/js/components/InertiaTable.vue ../resources/js/components/types.ts ../resources/js/components/date-format.js ../resources/js/components/date-format.test.js",
+        "format:check": "prettier --config .prettierrc --check resources/ tests/types-contract.ts tsconfig.package.json ../resources/js/components/InertiaTable.vue ../resources/js/components/types.ts ../resources/js/components/date-format.js ../resources/js/components/date-format.test.js",
+        "lint": "npm run lint:app -- --fix && npm run lint:package -- --fix",
+        "lint:check": "npm run lint:app && npm run lint:package",
+        "lint:app": "cd resources/js && ../../node_modules/.bin/eslint .",
+        "lint:package": "cd ../resources/js && ../../example/node_modules/.bin/eslint --config ../../example/eslint.config.js components/date-format.js components/date-format.test.js components/types.ts && cd ../../example/resources/js && ../../node_modules/.bin/eslint ../../tests/types-contract.ts",
+        "test:formatting": "node --test ../resources/js/components/date-format.test.js tests/inertia-table-component.test.js",
+        "types:check": "vue-tsc --noEmit && vue-tsc --noEmit --project tsconfig.package.json"
     },
     "devDependencies": {
         "@eslint/js": "^9.19.0",

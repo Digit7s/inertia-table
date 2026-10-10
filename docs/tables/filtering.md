@@ -34,6 +34,14 @@ By default, filters are of type `text`. They search the column using a `like` qu
 Filter::make('email')
 ```
 
+Registered filters may target a relationship attribute with dot notation:
+
+```php
+Filter::make('company.name')
+```
+
+The default filter uses `whereHas`, so a collection relationship matches when **any** related record satisfies the filter. Nested paths such as `company.owner.name` are supported. Related model scopes, including soft-delete scopes, remain in effect. Relationship names and fields come from the table's registered filter definitions; request values are bound as values and cannot select another field or operator. `MorphTo` filters need an application-defined `query()` callback because their target model varies by record.
+
 ### Select Filter
 
 For filters with a set of options, use the `select` type and provide options:
@@ -71,4 +79,4 @@ Filter::make('created_after')
 
 The frontend sends selected filters in the `filter` query parameter as an array: `filter[status]=active`. The filters are preserved in the Inertia URL automatically, meaning page refreshes and direct links keep the filter state intact.
 
-InertiaTable automatically loops through the request filters and applies them to the query using the `apply()` method on the corresponding `Filter` instance.
+InertiaTable validates each submitted filter against the table's registered definitions. Custom `query()` callbacks continue to receive the base table query and remain application-owned.

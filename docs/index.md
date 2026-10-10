@@ -4,6 +4,7 @@ Welcome to the documentation for `digit7s/inertia-table`. This package provides 
 
 ## Table of Contents
 
+- [Migrating to v2.0.0](migration-v2.md)
 - [Installation](installation.md)
 - [Basic Usage](usage.md)
 - [Columns](columns.md)

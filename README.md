@@ -28,12 +28,13 @@ Define your table structure, query, searching, sorting, filtering, row actions, 
 
 ## ✅ Version Support
 
-| Package Version | PHP    | Laravel                        | Inertia Laravel | Vue.js | Tailwind CSS | shadcn-vue | Status |
-| --------------- | ------ | ------------------------------ | --------------- | ------ | ------------ | ---------- | ------ |
-| `1.x`           | `^8.2` | `10.x`, `11.x`, `12.x`, `13.x` | `^1.0`, `^2.0`, `^3.0` | `3.x`  | `3.x`, `4.x` | Compatible | Active |
+| Package Version | PHP | Laravel | Inertia Laravel | Vue.js | Tailwind CSS | shadcn-vue | Status |
+| --------------- | --- | ------- | --------------- | ------ | ------------ | ---------- | ------ |
+| `2.x` | `8.2+` (Laravel 12); `8.3+` (Laravel 13) | `12.x`, `13.x` | `2.x` (Laravel 12); `3.x` (Laravel 13) | `3.x` | `3.x`, `4.x` | Declared | Current |
+| `1.x` | `^8.2` | `10.x`–`13.x` (earlier declaration) | `^1.0`, `^2.0`, `^3.0` (earlier declaration) | `3.x` | `3.x`, `4.x` | Earlier release line |
 
 
-Version support is based on the Composer constraints and tested compatibility for each package release.
+This table lists declared Composer support. The release CI matrix exercises representative compatible Laravel, Inertia Laravel, and PHP combinations; a Composer constraint by itself is not proof that a combination has passed tests. Laravel 10 and 11 applications must upgrade Laravel before installing v2.0.0. The earlier v1.x Composer declaration included Laravel 10 and 11, but package installability does not imply those Laravel versions receive upstream security support.
 
 ---
 
@@ -49,8 +50,8 @@ This package has two parts:
 ### Backend Requirements
 
 * PHP `8.2+`
-* Laravel `10.x`, `11.x`, or `12.x`
-* Inertia Laravel `1.x` or `2.x`
+* Laravel `12.x` with PHP 8.2+, or Laravel `13.x` with PHP 8.3+
+* Inertia Laravel `2.x` on Laravel 12, or `3.x` on Laravel 13
 
 ### Frontend Requirements
 
@@ -84,6 +85,8 @@ Depending on the features you use, additional shadcn-vue components may be requi
 ---
 
 ## 🚀 Installation
+
+For Laravel 10/11 upgrade guidance and v2 behavior changes, see the [v2 migration guide](docs/migration-v2.md).
 
 Install the package via Composer:
 
@@ -364,6 +367,8 @@ Slot names follow this format:
 ```txt
 cell-{column-key}
 ```
+
+For flat columns, `item.name` remains available. Dotted relationship column values are available at `item._column_values?.['company.name']`. The table automatically eager-loads the relationship for resolution but does not add that automatically loaded model to the row payload. Existing `item.company?.name` slots continue to work only when the application's own query already eager-loads and serializes `company`; update those slots to use `_column_values` if they relied on the table's automatic relationship eager loading. This avoids exposing whole related models and unrelated attributes in the Inertia payload.
 
 For example:
 

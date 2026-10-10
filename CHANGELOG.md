@@ -4,6 +4,34 @@ All notable changes to `digit7s/inertia-table` will be documented in this file.
 
 The format is based on Keep a Changelog, and this project follows Semantic Versioning where possible.
 
+## [2.0.0] - 2026-10-10
+
+### Support
+
+- Set the v2.0.0 support range to Laravel 12 and 13, PHP 8.2+ (Laravel 12) and PHP 8.3+ (Laravel 13), Inertia Laravel 2 and 3 respectively, and Vue 3. Laravel 10/11 remain associated with the earlier package release line; this does not imply upstream security support for those Laravel releases.
+
+### Fixed
+
+- Normalize serialized `searchable` metadata to a boolean while retaining configured search fields on the server.
+- Respect date and datetime format metadata in the Vue component and safely handle date-only, null, and invalid values.
+- Exclude the example application's recursive package symlink from ESLint traversal.
+- Extend Testbench development constraints for the declared Laravel test matrix.
+
+### Changed
+
+- Validate bulk-action IDs against the scoped table query and preserve select-all matching semantics.
+- Resolve dotted relationship column values into `_column_values` without serializing automatically loaded relationship models.
+- Apply configured relationship-aware sort, filter, and search state consistently to table and export queries; stabilize paginated tie order.
+- Neutralize formula-leading text in CSV cells and require applications to provide export authorization through route middleware or the export callback.
+
+### Migration notes
+
+- See [Migration guide for v2](docs/migration-v2.md) for framework requirements, payload changes, stricter bulk-action validation, CSV formula neutralization, and authorization contracts.
+
+### Documentation
+
+- Document the Laravel 12/13 support line, relationship slot payload migration, date formatting and timezone behavior, and v2 upgrade requirements.
+
 ## [1.1.0] - 2026-06-29
 
 ### Added
@@ -43,4 +71,5 @@ The format is based on Keep a Changelog, and this project follows Semantic Versi
 - Added tests for CSV export functionality (`tests/Feature/ExportTest.php`).
 - Updated internal type definitions (`types.ts`) to include `ExportAction`.
 
-[Unreleased]: https://github.com/Digit7s/inertia-table/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/Digit7s/inertia-table/compare/v2.0.0...HEAD
+[2.0.0]: https://github.com/Digit7s/inertia-table/compare/v1.1.0...v2.0.0

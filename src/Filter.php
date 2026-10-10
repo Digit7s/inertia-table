@@ -4,6 +4,7 @@ namespace Digit7s\InertiaTable;
 
 use Illuminate\Database\Eloquent\Builder;
 
+/** @phpstan-consistent-constructor */
 class Filter
 {
     protected string $type = 'text';
@@ -47,6 +48,11 @@ class Filter
         return $this->options;
     }
 
+    public function hasQueryCallback(): bool
+    {
+        return $this->queryCallback !== null;
+    }
+
     public function query(callable $callback): static
     {
         $this->queryCallback = $callback;
@@ -62,12 +68,23 @@ class Filter
             return;
         }
 
+        $this->applyValue($query, $this->key, $value);
+    }
+
+    /** Apply the built-in filter operator to a validated field name. */
+    public function applyValue(Builder $query, string $field, mixed $value): void
+    {
+        if ($this->queryCallback) {
+            throw new \LogicException('Custom filter callbacks must be applied through apply().');
+        }
+
         if ($this->type === 'text') {
-            $query->where($this->key, 'like', "%{$value}%");
+            $wrappedField = $query->getQuery()->getGrammar()->wrap($field);
+            $query->whereRaw('LOWER('.$wrappedField.') LIKE ?', ['%'.mb_strtolower((string) $value).'%']);
         } elseif ($this->type === 'boolean') {
-            $query->where($this->key, filter_var($value, FILTER_VALIDATE_BOOLEAN));
+            $query->where($field, filter_var($value, FILTER_VALIDATE_BOOLEAN));
         } else {
-            $query->where($this->key, $value);
+            $query->where($field, $value);
         }
     }
 

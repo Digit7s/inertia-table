@@ -2,6 +2,7 @@
 
 namespace Digit7s\InertiaTable;
 
+/** @phpstan-consistent-constructor */
 class BulkAction
 {
     protected ?string $icon = null;

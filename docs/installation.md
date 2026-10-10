@@ -4,13 +4,16 @@ This guide will walk you through setting up `digit7s/inertia-table` in your Lara
 
 ## Requirements
 
-- PHP 8.1+
-- Laravel 10, 11, 12, or 13
-- Inertia.js (Vue 3 adapter)
+- PHP 8.2+
+- Laravel 12 with PHP 8.2+, or Laravel 13 with PHP 8.3+
+- Inertia Laravel 2 on Laravel 12, or Inertia Laravel 3 on Laravel 13
+- Inertia.js Vue 3 adapter and Vue 3
 - Tailwind CSS (v3 or v4)
 - `shadcn-vue` (for the frontend components)
 
 ## 1. Install the Package
+
+Package v2.0.0 supports Laravel 12 and 13. Laravel 10/11 remain on the earlier package release line; applications on those framework versions should upgrade Laravel before requiring v2.0.0. This package version policy does not imply that Laravel 10/11 receive upstream security support. See the [v2 migration guide](./migration-v2.md) before upgrading.
 
 Install the package via Composer:
 

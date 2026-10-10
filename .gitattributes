@@ -3,6 +3,11 @@
 /.idea export-ignore
 /.vscode export-ignore
 /tests export-ignore
+/vendor export-ignore
+/composer.lock export-ignore
+/phpunit.xml export-ignore
+/phpstan.package.neon export-ignore
+/resources/js/components/date-format.test.js export-ignore
 /.phpunit.cache export-ignore
 /.phpunit.result.cache export-ignore
 /.pest_tracker.json export-ignore
