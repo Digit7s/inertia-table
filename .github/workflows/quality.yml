@@ -1,0 +1,145 @@
+name: Package quality
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  php-tests:
+    name: PHP ${{ matrix.php }} / Laravel ${{ matrix.laravel }} / Inertia ${{ matrix.inertia }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - php: '8.2'
+            laravel: '12'
+            testbench: '^10.0'
+            inertia: '^2.0'
+            pest: '^3.0'
+            pest_laravel: '^3.0'
+          - php: '8.3'
+            laravel: '12'
+            testbench: '^10.0'
+            inertia: '^2.0'
+            pest: '^3.0'
+            pest_laravel: '^3.0'
+          - php: '8.4'
+            laravel: '13'
+            testbench: '^11.0'
+            inertia: '^3.0'
+            pest: '^4.0'
+            pest_laravel: '^4.0'
+          - php: '8.5'
+            laravel: '13'
+            testbench: '^11.0'
+            inertia: '^3.0'
+            pest: '^4.0'
+            pest_laravel: '^4.0'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: mbstring, pdo_sqlite, sqlite3
+          coverage: none
+      - name: Resolve representative framework versions
+        run: >-
+          composer update --no-interaction --prefer-dist --with-all-dependencies
+          --with="orchestra/testbench:${{ matrix.testbench }}"
+          --with="inertiajs/inertia-laravel:${{ matrix.inertia }}"
+          --with="pestphp/pest:${{ matrix.pest }}"
+          --with="pestphp/pest-plugin-laravel:${{ matrix.pest_laravel }}"
+      - name: Run package tests on SQLite
+        run: vendor/bin/pest --compact
+      - name: Validate Composer metadata
+        run: composer validate --no-check-publish
+      - name: Check package formatting
+        run: vendor/bin/pint --test src tests
+      - name: Check whitespace
+        run: git diff --check
+
+  database-tests:
+    name: PHP 8.4 / Laravel 13 / ${{ matrix.database }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        database: [postgres, mysql]
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: inertia_table_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s --health-timeout 5s --health-retries 5
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_DATABASE: inertia_table_test
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd "mysqladmin ping -proot"
+          --health-interval 10s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, pdo_mysql, pdo_pgsql, pdo_sqlite, sqlite3
+          coverage: none
+      - uses: ramsey/composer-install@v3
+      - name: Run package tests on ${{ matrix.database }}
+        env:
+          TEST_DB_CONNECTION: ${{ matrix.database == 'postgres' && 'pgsql' || 'mysql' }}
+          TEST_DB_HOST: 127.0.0.1
+          TEST_DB_DATABASE: inertia_table_test
+          TEST_DB_USERNAME: ${{ matrix.database == 'postgres' && 'postgres' || 'root' }}
+          TEST_DB_PASSWORD: ${{ matrix.database == 'postgres' && 'postgres' || 'root' }}
+        run: vendor/bin/pest --compact
+
+  frontend:
+    name: Frontend quality
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: example
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: example/package-lock.json
+      - run: npm ci
+      - run: npm run lint:check
+      - run: npm run format:check
+      - run: npm run test:formatting
+      - run: npm run types:check
+      - run: npm run build
+
+  package-static-analysis:
+    name: Package PHPStan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, pdo_sqlite, sqlite3
+          coverage: none
+      - run: composer install --no-interaction --prefer-dist
+      - name: Install example analysis runtime
+        run: composer install --working-dir=example --no-interaction --prefer-dist
+      - name: Analyze package source
+        run: example/vendor/bin/phpstan analyse --configuration=phpstan.package.neon --no-progress --memory-limit=1G

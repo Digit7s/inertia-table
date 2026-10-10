@@ -1,0 +1,11 @@
+includes:
+    - example/vendor/larastan/larastan/extension.neon
+    - example/vendor/nesbot/carbon/extension.neon
+
+parameters:
+    paths:
+        - src
+    level: 3
+    bootstrapFiles:
+        - example/vendor/autoload.php
+    tmpDir: example/storage/framework/cache/phpstan-package

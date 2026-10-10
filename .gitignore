@@ -6,6 +6,7 @@ composer.lock
 package-lock.json
 yarn.lock
 pnpm-lock.yaml
+!/example/package-lock.json
 
 # Test/cache files
 .phpunit.result.cache
