@@ -2,7 +2,9 @@ name: Package quality
 
 on:
   push:
+    branches: [main]
   pull_request:
+    branches: [main]
 
 permissions:
   contents: read
@@ -116,6 +118,17 @@ jobs:
         working-directory: example
     steps:
       - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, pdo_sqlite, sqlite3
+          coverage: none
+      - uses: ramsey/composer-install@v3
+        with:
+          working-directory: example
+          composer-options: --no-scripts
+      - name: Discover Laravel packages
+        run: php artisan package:discover --ansi
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -140,6 +153,9 @@ jobs:
           coverage: none
       - run: composer install --no-interaction --prefer-dist
       - name: Install example analysis runtime
-        run: composer install --working-dir=example --no-interaction --prefer-dist
+        uses: ramsey/composer-install@v3
+        with:
+          working-directory: example
+          composer-options: --no-scripts
       - name: Analyze package source
         run: example/vendor/bin/phpstan analyse --configuration=phpstan.package.neon --no-progress --memory-limit=1G
