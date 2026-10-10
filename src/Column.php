@@ -2,6 +2,7 @@
 
 namespace Digit7s\InertiaTable;
 
+/** @phpstan-consistent-constructor */
 class Column
 {
     protected string $type = 'text';
@@ -174,7 +175,7 @@ class Column
             'label' => $this->label,
             'type' => $this->type,
             'sortable' => (bool) $this->evaluate($this->sortable),
-            'searchable' => $this->evaluate($this->searchable),
+            'searchable' => $this->isSearchable(),
             'visible' => $visible,
             'toggleable' => $visible && (bool) $this->evaluate($this->toggleable),
             'toggledHiddenByDefault' => (bool) $this->evaluate($this->toggledHiddenByDefault),

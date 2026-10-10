@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import InertiaTable from '@/components/inertia-table/InertiaTable.vue';
-import type { TableData } from '@/components/inertia-table/types';
 import { Head } from '@inertiajs/vue3';
+import InertiaTable from '@/components/inertia-table/InertiaTable.vue';
 
 defineProps<{
     products: Record<string, any>;
@@ -9,7 +8,6 @@ defineProps<{
 </script>
 
 <template>
-
     <Head title="Products" />
     <div class="container mx-auto space-y-6 p-6">
         <div>

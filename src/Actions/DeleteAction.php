@@ -4,6 +4,7 @@ namespace Digit7s\InertiaTable\Actions;
 
 use Digit7s\InertiaTable\Action;
 
+/** @phpstan-consistent-constructor */
 class DeleteAction extends Action
 {
     protected string $method = 'delete';

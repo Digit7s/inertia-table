@@ -84,27 +84,32 @@ test('it includes row links if configured', function () {
 test('it can handle bulk actions', function () {
     $table = new UsersTable;
     $bulkActions = $table->bulkActions();
+    $john = User::where('email', 'john@example.com')->firstOrFail();
+    $jane = User::where('email', 'jane@example.com')->firstOrFail();
 
     expect($bulkActions)->toHaveCount(1);
     expect($bulkActions[0]->key)->toBe('delete');
 
     // Simulate bulk action call
-    $bulkActions[0]->handle([1], false);
+    $bulkActions[0]->handle([$john->getKey()], false);
 
-    expect(User::find(1))->toBeNull();
-    expect(User::find(2))->not->toBeNull();
+    expect(User::find($john->getKey()))->toBeNull();
+    expect(User::find($jane->getKey()))->not->toBeNull();
 });
 
 test('it can execute bulk action through controller', function () {
     $tableClass = UsersTable::class;
+    $john = User::where('email', 'john@example.com')->firstOrFail();
+    $jane = User::where('email', 'jane@example.com')->firstOrFail();
     $payload = [
         'table_class' => encrypt($tableClass),
         'action_key' => 'delete',
-        'ids' => [2],
+        'ids' => [$jane->getKey()],
     ];
 
     $response = $this->post(route('inertia-table.bulk-action'), $payload);
 
     $response->assertStatus(302);
-    expect(User::find(2))->toBeNull();
+    expect(User::find($jane->getKey()))->toBeNull()
+        ->and(User::find($john->getKey()))->not->toBeNull();
 });

@@ -45,6 +45,7 @@ import type { ExportAction } from './types';
 import DataTablePagination from './DataTablePagination.vue';
 import DataTableBulkActionBar from './DataTableBulkActionBar.vue';
 import { computed, onMounted } from 'vue';
+import { formatDateValue } from './date-format';
 
 interface Column {
     key: string;
@@ -107,6 +108,15 @@ const props = defineProps<{
 
 const emit = defineEmits(['success', 'action']);
 
+const getCellValue = (row: any, key: string) => {
+    const resolvedValues = row?._column_values;
+
+    return resolvedValues &&
+        Object.prototype.hasOwnProperty.call(resolvedValues, key)
+        ? resolvedValues[key]
+        : get(row, key);
+};
+
 const search = ref(props.tableData.query?.search || '');
 
 const updateTable = (params: Record<string, any>) => {
@@ -163,7 +173,10 @@ const groupedData = computed(() => {
     props.tableData.data.forEach((row) => {
         // Use _group_value if provided by backend, otherwise fall back to raw value
         const val = row._group_value ?? get(row, groupKey);
-        const label = val === null || val === undefined || val === '' ? 'No Group' : String(val);
+        const label =
+            val === null || val === undefined || val === ''
+                ? 'No Group'
+                : String(val);
 
         if (!groups[label]) {
             groups[label] = { label, rows: [] };
@@ -201,15 +214,6 @@ const getBadgeIcon = (column: Column, value: any) => {
     return null;
 };
 
-const formatDate = (value: any, type: string) => {
-    if (!value) return '';
-    const date = new Date(value);
-    if (type === 'date') {
-        return date.toLocaleDateString();
-    }
-    return date.toLocaleString();
-};
-
 const hiddenColumns = ref<string[]>([]);
 
 const visibleColumns = computed(() => {
@@ -219,7 +223,8 @@ const visibleColumns = computed(() => {
 });
 
 onMounted(() => {
-    const tableId = props.tableData.meta?.table_class || window.location.pathname;
+    const tableId =
+        props.tableData.meta?.table_class || window.location.pathname;
 
     // Collect columns that are explicitly marked as NOT visible OR toggledHiddenByDefault from the backend
     const defaultHidden = props.tableData.columns
@@ -243,7 +248,8 @@ onMounted(() => {
 watch(
     hiddenColumns,
     (newVal) => {
-        const tableId = props.tableData.meta?.table_class || window.location.pathname;
+        const tableId =
+            props.tableData.meta?.table_class || window.location.pathname;
         try {
             localStorage.setItem(
                 `inertia-table-hidden-${tableId}`,
@@ -433,7 +439,7 @@ const getAriaSort = (column: Column): 'ascending' | 'descending' | 'none' => {
         <div class="flex items-center justify-between gap-4">
             <div v-if="isSearchable" class="relative w-full max-w-sm">
                 <Search
-                    class="absolute top-2.5 left-2.5 h-4 w-4 text-muted-foreground"
+                    class="text-muted-foreground absolute left-2.5 top-2.5 h-4 w-4"
                 />
                 <Input
                     v-model="search"
@@ -450,10 +456,11 @@ const getAriaSort = (column: Column): 'ascending' | 'descending' | 'none' => {
                     :query="tableData.query"
                 />
 
-
-
                 <DataTableExportButton
-                    v-if="tableData.meta.exports && tableData.meta.exports.length > 0"
+                    v-if="
+                        tableData.meta.exports &&
+                        tableData.meta.exports.length > 0
+                    "
                     :exports="tableData.meta.exports"
                     :table-class="tableData.meta.table_class!"
                     :query="tableData.query"
@@ -481,7 +488,7 @@ const getAriaSort = (column: Column): 'ascending' | 'descending' | 'none' => {
                         >
                             <input
                                 type="checkbox"
-                                class="h-4 w-4 cursor-pointer rounded border-gray-300 text-primary focus:ring-primary"
+                                class="text-primary focus:ring-primary h-4 w-4 cursor-pointer rounded border-gray-300"
                                 :checked="isAllCurrentPageSelected"
                                 :indeterminate.prop="isSomeCurrentPageSelected"
                                 @change="
@@ -538,7 +545,7 @@ const getAriaSort = (column: Column): 'ascending' | 'descending' | 'none' => {
                             isAllCurrentPageSelected &&
                             tableData.meta.total > tableData.data.length
                         "
-                        class="border-b bg-muted/50"
+                        class="bg-muted/50 border-b"
                     >
                         <TableCell
                             :colspan="
@@ -558,7 +565,7 @@ const getAriaSort = (column: Column): 'ascending' | 'descending' | 'none' => {
                                 items are selected.
                                 <button
                                     type="button"
-                                    class="ml-1 font-medium text-primary hover:underline focus:outline-none"
+                                    class="text-primary ml-1 font-medium hover:underline focus:outline-none"
                                     @click="
                                         selectedIds = [];
                                         selectAllMatching = false;
@@ -575,7 +582,7 @@ const getAriaSort = (column: Column): 'ascending' | 'descending' | 'none' => {
                                 items on this page are selected.
                                 <button
                                     type="button"
-                                    class="ml-1 font-medium text-primary hover:underline focus:outline-none"
+                                    class="text-primary ml-1 font-medium hover:underline focus:outline-none"
                                     @click="selectAllMatching = true"
                                 >
                                     Select all
@@ -605,7 +612,7 @@ const getAriaSort = (column: Column): 'ascending' | 'descending' | 'none' => {
                             >
                                 <div class="flex items-center gap-2">
                                     <span
-                                        class="text-[10px] font-bold tracking-wider text-muted-foreground uppercase"
+                                        class="text-muted-foreground text-[10px] font-bold uppercase tracking-wider"
                                     >
                                         {{
                                             tableData.groups?.find(
@@ -634,9 +641,11 @@ const getAriaSort = (column: Column): 'ascending' | 'descending' | 'none' => {
                             :key="row.id || index"
                             :class="[
                                 row._row_link
-                                    ? 'cursor-pointer hover:bg-muted/50'
+                                    ? 'hover:bg-muted/50 cursor-pointer'
                                     : '',
-                                selectedIds.includes(row.id) ? 'bg-muted/50' : '',
+                                selectedIds.includes(row.id)
+                                    ? 'bg-muted/50'
+                                    : '',
                             ]"
                             @click="
                                 row._row_link
@@ -653,14 +662,13 @@ const getAriaSort = (column: Column): 'ascending' | 'descending' | 'none' => {
                             >
                                 <input
                                     type="checkbox"
-                                    class="h-4 w-4 cursor-pointer rounded border-gray-300 text-primary focus:ring-primary"
+                                    class="text-primary focus:ring-primary h-4 w-4 cursor-pointer rounded border-gray-300"
                                     :checked="selectedIds.includes(row.id)"
                                     @change="
                                         toggleRow(
                                             row.id,
-                                            (
-                                                $event.target as HTMLInputElement
-                                            ).checked,
+                                            ($event.target as HTMLInputElement)
+                                                .checked,
                                         )
                                     "
                                     @click.stop
@@ -683,7 +691,10 @@ const getAriaSort = (column: Column): 'ascending' | 'descending' | 'none' => {
                                             :variant="
                                                 getBadgeVariant(
                                                     column,
-                                                    get(row, column.key),
+                                                    getCellValue(
+                                                        row,
+                                                        column.key,
+                                                    ),
                                                 )
                                             "
                                             class="gap-1.5"
@@ -692,22 +703,30 @@ const getAriaSort = (column: Column): 'ascending' | 'descending' | 'none' => {
                                                 :is="
                                                     getBadgeIcon(
                                                         column,
-                                                        get(row, column.key),
+                                                        getCellValue(
+                                                            row,
+                                                            column.key,
+                                                        ),
                                                     )
                                                 "
                                                 v-if="
                                                     getBadgeIcon(
                                                         column,
-                                                        get(row, column.key),
+                                                        getCellValue(
+                                                            row,
+                                                            column.key,
+                                                        ),
                                                     )
                                                 "
                                                 class="h-3 w-3"
                                             />
-                                            {{ get(row, column.key) }}
+                                            {{ getCellValue(row, column.key) }}
                                         </Badge>
                                     </template>
 
-                                    <template v-else-if="column.type === 'boolean'">
+                                    <template
+                                        v-else-if="column.type === 'boolean'"
+                                    >
                                         <div
                                             class="flex items-center gap-2"
                                             :class="[
@@ -717,7 +736,12 @@ const getAriaSort = (column: Column): 'ascending' | 'descending' | 'none' => {
                                             ]"
                                         >
                                             <Check
-                                                v-if="get(row, column.key)"
+                                                v-if="
+                                                    getCellValue(
+                                                        row,
+                                                        column.key,
+                                                    )
+                                                "
                                                 class="h-4 w-4 text-green-500"
                                             />
                                             <X
@@ -726,22 +750,33 @@ const getAriaSort = (column: Column): 'ascending' | 'descending' | 'none' => {
                                             />
                                             <span
                                                 v-if="
-                                                    get(row, column.key) &&
-                                                    column.meta?.true_label
+                                                    getCellValue(
+                                                        row,
+                                                        column.key,
+                                                    ) && column.meta?.true_label
                                                 "
-                                                >{{ column.meta.true_label }}</span
+                                                >{{
+                                                    column.meta.true_label
+                                                }}</span
                                             >
                                             <span
                                                 v-else-if="
-                                                    !get(row, column.key) &&
+                                                    !getCellValue(
+                                                        row,
+                                                        column.key,
+                                                    ) &&
                                                     column.meta?.false_label
                                                 "
-                                                >{{ column.meta.false_label }}</span
+                                                >{{
+                                                    column.meta.false_label
+                                                }}</span
                                             >
                                         </div>
                                     </template>
 
-                                    <template v-else-if="column.type === 'tags'">
+                                    <template
+                                        v-else-if="column.type === 'tags'"
+                                    >
                                         <div
                                             class="flex flex-wrap gap-1"
                                             :class="[
@@ -751,46 +786,60 @@ const getAriaSort = (column: Column): 'ascending' | 'descending' | 'none' => {
                                             ]"
                                         >
                                             <Badge
-                                                v-for="(tag, i) in get(
+                                                v-for="(tag, i) in getCellValue(
                                                     row,
                                                     column.key,
                                                 ) || []"
                                                 :key="tag.id || i"
                                                 variant="outline"
-                                                class="h-5 bg-muted/50 text-[10px]"
-                                                :class="column.meta?.badge_class"
+                                                class="bg-muted/50 h-5 text-[10px]"
+                                                :class="
+                                                    column.meta?.badge_class
+                                                "
                                             >
                                                 {{
                                                     column.meta?.label_key
                                                         ? get(
                                                               tag,
-                                                              column.meta.label_key,
+                                                              column.meta
+                                                                  .label_key,
                                                           )
                                                         : tag
                                                 }}
                                             </Badge>
                                             <span
-                                                v-if="!get(row, column.key)?.length"
-                                                class="text-xs text-muted-foreground italic"
+                                                v-if="
+                                                    !getCellValue(
+                                                        row,
+                                                        column.key,
+                                                    )?.length
+                                                "
+                                                class="text-muted-foreground text-xs italic"
                                                 >None</span
                                             >
                                         </div>
                                     </template>
 
-                                    <template v-else-if="column.type === 'image'">
+                                    <template
+                                        v-else-if="column.type === 'image'"
+                                    >
                                         <template
                                             v-if="
-                                                get(row, column.key) ||
+                                                getCellValue(row, column.key) ||
                                                 column.meta?.default_url
                                             "
                                         >
                                             <img
                                                 :src="
-                                                    get(row, column.key) ||
+                                                    getCellValue(
+                                                        row,
+                                                        column.key,
+                                                    ) ||
                                                     column.meta?.default_url
                                                 "
                                                 :alt="
-                                                    column.meta?.alt || column.label
+                                                    column.meta?.alt ||
+                                                    column.label
                                                 "
                                                 :title="column.meta?.title"
                                                 class="object-cover"
@@ -815,7 +864,9 @@ const getAriaSort = (column: Column): 'ascending' | 'descending' | 'none' => {
                                         </template>
                                     </template>
 
-                                    <template v-else-if="column.type === 'action'">
+                                    <template
+                                        v-else-if="column.type === 'action'"
+                                    >
                                         <div
                                             class="flex items-center gap-2"
                                             :class="[
@@ -832,7 +883,9 @@ const getAriaSort = (column: Column): 'ascending' | 'descending' | 'none' => {
                                                         row._actions.length > 0
                                                     "
                                                 >
-                                                    <DropdownMenuTrigger asChild>
+                                                    <DropdownMenuTrigger
+                                                        asChild
+                                                    >
                                                         <Button
                                                             type="button"
                                                             variant="ghost"
@@ -852,7 +905,8 @@ const getAriaSort = (column: Column): 'ascending' | 'descending' | 'none' => {
                                                                 actionItem, i
                                                             ) in row._actions"
                                                             :key="
-                                                                actionItem.key || i
+                                                                actionItem.key ||
+                                                                i
                                                             "
                                                         >
                                                             <DropdownMenuItem
@@ -907,15 +961,19 @@ const getAriaSort = (column: Column): 'ascending' | 'descending' | 'none' => {
                                         "
                                     >
                                         {{
-                                            formatDate(
-                                                get(row, column.key),
+                                            formatDateValue(
+                                                getCellValue(row, column.key),
                                                 column.type,
+                                                typeof column.meta?.format ===
+                                                    'string'
+                                                    ? column.meta.format
+                                                    : undefined,
                                             )
                                         }}
                                     </template>
 
                                     <template v-else>
-                                        {{ get(row, column.key) }}
+                                        {{ getCellValue(row, column.key) }}
                                     </template>
                                 </slot>
                             </TableCell>
@@ -961,7 +1019,10 @@ const getAriaSort = (column: Column): 'ascending' | 'descending' | 'none' => {
             :actions="tableData.bulk_actions"
             :selectAllMatching="selectAllMatching"
             :totalCount="tableData.meta.total"
-            @clear="selectedIds = []; selectAllMatching = false"
+            @clear="
+                selectedIds = [];
+                selectAllMatching = false;
+            "
             @action="executeBulkAction"
         />
 

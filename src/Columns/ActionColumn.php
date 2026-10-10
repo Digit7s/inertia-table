@@ -4,6 +4,7 @@ namespace Digit7s\InertiaTable\Columns;
 
 use Digit7s\InertiaTable\Column;
 
+/** @phpstan-consistent-constructor */
 class ActionColumn extends Column
 {
     protected string $type = 'action';
